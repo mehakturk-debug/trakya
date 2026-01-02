@@ -24,7 +24,6 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
 
-        /* Neon Kartlar */
         .neon-card {
             background: var(--card-bg); border: 2px solid #333; border-radius: 15px; height: 200px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -38,17 +37,14 @@
         .badge-count { background: var(--neon-yellow); color: #000; padding: 3px 12px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
         .badge-money { background: #27ae60; color: white; padding: 3px 12px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 0 10px rgba(39, 174, 96, 0.4); }
 
-        /* Dükkan Kartları */
         .shop-card { background: var(--card-bg); border-radius: 15px; border: 1px solid #333; overflow: hidden; position: relative; border-bottom: 4px solid var(--neon-yellow); }
         .shop-order { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.8); color: var(--neon-yellow); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--neon-yellow); font-weight: bold; z-index: 5; }
         .shop-content { padding: 25px; }
         .teberru { color: var(--neon-yellow); font-weight: bold; border: 1px solid var(--neon-yellow); padding: 5px 15px; border-radius: 20px; float: right; font-size: 1rem; }
         
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); }
         .modal-content { background: #1a1a1a; width: 90%; max-width: 500px; margin: 2% auto; padding: 30px; border: 2px solid var(--neon-yellow); border-radius: 20px; box-shadow: var(--neon-shadow); }
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: var(--neon-yellow); outline: none; }
         
         .hidden { display: none; }
         .loader { text-align: center; padding: 50px; color: var(--neon-yellow); font-size: 1.5rem; font-weight: bold; }
@@ -67,24 +63,24 @@
 <div id="itemModal" class="modal">
     <div class="modal-content">
         <h3 style="color: var(--neon-yellow); margin-top:0">🔒 YENİ KAYIT YETKİLENDİRME</h3>
-        <input type="password" id="adminPass" placeholder="Yönetici Şifresini Giriniz" style="border-color: #e74c3c;">
+        <input type="password" id="adminPass" placeholder="Yönetici Şifresi (Varsayılan: 1234)">
         <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
         <div style="display: flex; gap: 10px;">
             <input type="number" id="orderNo" placeholder="Sıra No">
-            <input type="text" id="amount" placeholder="Miktar (Örn: 5000)">
+            <input type="text" id="amount" placeholder="Miktar (Sayı)">
         </div>
         <input type="text" id="name" placeholder="Dükkan Adı">
         <input type="text" id="owner" placeholder="Dükkan Sahibi">
-        <input type="tel" id="phone" placeholder="Telefon (05xx...)">
-        <input type="text" id="maps" placeholder="Google Maps Linki">
-        <textarea id="desc" placeholder="Kısa Açıklama..." rows="2"></textarea>
-        <button id="saveBtn" class="btn" style="width:100%; margin-top:10px" onclick="saveShop()">VERİTABANINA GÖNDER</button>
+        <input type="tel" id="phone" placeholder="Telefon (05xx)">
+        <input type="text" id="maps" placeholder="Maps Linki">
+        <textarea id="desc" placeholder="Açıklama..." rows="2"></textarea>
+        <button id="saveBtn" class="btn" style="width:100%; margin-top:10px" onclick="saveShop()">BULUTA KAYDET</button>
         <button class="btn" style="width:100%; margin-top:10px; border-color:#555; color:#555" onclick="closeModal()">İPTAL</button>
     </div>
 </div>
 
 <script>
-    // --- KONFİGÜRASYON ---
+    // --- LİNK VE ŞİFRE ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo51xVvNS5tYPeKQjEWfPqT-V_gcR6I-q3cQHoio9qXM1tfa99rk2I94rqr45p7dHx8w/exec";
     const ADMIN_PASSWORD = "1234"; 
     // ---------------------
@@ -101,10 +97,11 @@
 
     async function fetchDB() {
         const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '<div class="loader">Bulut Veritabanına Bağlanılıyor...</div>';
+        grid.innerHTML = '<div class="loader">Veriler Alınıyor...</div>';
         
         try {
-            const response = await fetch(SCRIPT_URL);
+            // Yönlendirme (CORS) sorununu çözen kritik ayar: redirect: follow
+            const response = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
             const rows = await response.json();
             db = {};
             rows.slice(1).forEach(r => {
@@ -114,7 +111,7 @@
             });
             render();
         } catch (e) {
-            grid.innerHTML = '<div class="loader" style="color:red">Bağlantı Hatası! Lütfen internetinizi kontrol edin.</div>';
+            grid.innerHTML = '<div class="loader" style="color:red">Veri Bağlantı Hatası!<br><small>Google Scripts Dağıtımı "Herkes" olarak ayarlanmalıdır.</small></div>';
         }
     }
 
@@ -143,7 +140,7 @@
             });
         } else if (!currentDist) {
             document.getElementById('backBtn').classList.remove('hidden');
-            document.getElementById('breadcrumb').innerText = `📍 ${currentCity} / İLÇELER`;
+            document.getElementById('breadcrumb').innerText = `📍 ${currentCity}`;
             [...cityData[currentCity].districts].sort((a,b)=>getStats(currentCity,b).count - getStats(currentCity,a).count).forEach(dist => {
                 const s = getStats(currentCity, dist);
                 const card = createNeonCard(dist, "", () => { currentDist = dist; render(); });
@@ -163,7 +160,7 @@
                         <h3 style="margin:0 0 10px 0; color:var(--neon-yellow)">${shop.name}</h3>
                         <p style="margin:5px 0"><b>Sahibi:</b> ${shop.owner}</p>
                         <p style="margin:5px 0; color:var(--neon-yellow)"><b>📞 ${shop.phone}</b></p>
-                        <p style="font-size:0.85rem; color:#888; margin-bottom:15px">${shop.desc}</p>
+                        <p style="font-size:0.85rem; color:#888; margin-bottom:15px; min-height:30px">${shop.desc}</p>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
                             <a href="${shop.maps}" target="_blank" class="btn" style="font-size:11px; padding:10px">YOL TARİFİ</a>
                             <a href="tel:${shop.phone}" class="btn" style="font-size:11px; background:#27ae60; color:white; border-color:#27ae60">HEMEN ARA</a>
@@ -187,10 +184,10 @@
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.querySelectorAll('input, textarea').forEach(i=>i.value=""); }
 
     async function saveShop() {
-        if(document.getElementById('adminPass').value !== ADMIN_PASSWORD) { alert("Şifre Yanlış! Yetkiniz bulunmuyor."); return; }
+        if(document.getElementById('adminPass').value !== ADMIN_PASSWORD) { alert("Yetkisiz Giriş! Şifre yanlış."); return; }
         
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = "BULUTA GÖNDERİLİYOR...";
+        saveBtn.innerText = "YAZILIYOR...";
         saveBtn.disabled = true;
 
         const shopObj = {
@@ -205,18 +202,21 @@
         };
 
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(shopObj) });
+            // POST isteği için redirect: follow önemlidir
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(shopObj), redirect: 'follow' });
             closeModal();
             fetchDB();
         } catch (e) {
-            alert("Kayıt sırasında hata oluştu!");
+            alert("Hata: Google Tabloya ulaşılamadı.");
         } finally {
-            saveBtn.innerText = "VERİTABANINA GÖNDER";
+            saveBtn.innerText = "BULUTA KAYDET";
             saveBtn.disabled = false;
         }
     }
 
     function goBack() { if(currentDist) currentDist = null; else if(currentCity) currentCity = null; render(); }
+    
+    // Uygulama Başlatma
     fetchDB();
 </script>
 </body>
