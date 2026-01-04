@@ -3,221 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trakya Bölgesi Teberru Programı</title>
+    <title>Trakya Teberru - Yönetim Paneli</title>
     <style>
         :root {
-            --bg-color: #050505;
-            --neon-yellow: #f1c40f;
-            --neon-shadow: 0 0 15px #f1c40f;
-            --card-bg: #121212;
-            --text-color: #ffffff;
+            --bg: #000; --card: #080808; --neon: #f1c40f; 
+            --glow: 0 0 25px rgba(241, 196, 15, 0.4); --success: #27ae60;
         }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        .main-wrapper { display: flex; height: 100vh; width: 100vw; flex-direction: column; }
 
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* KİLİT EKRANI */
+        #lockScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .lock-content { background: #0a0a0a; border: 2px solid var(--neon); padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: var(--glow); }
 
-        .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #222; padding-bottom: 15px; }
-        .breadcrumb { font-size: 1.4rem; color: var(--neon-yellow); text-shadow: var(--neon-shadow); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .btn { padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; border: 2px solid var(--neon-yellow); background: transparent; color: var(--neon-yellow); text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
-        .btn:hover { background: var(--neon-yellow); color: #000; box-shadow: var(--neon-shadow); }
+        /* ANA İÇERİK */
+        .content-area { flex: 1; padding: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .master-stats { background: #050505; border: 1px solid var(--success); border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 10px; flex-shrink: 0; }
+        .master-val { font-size: 2rem; font-weight: 900; color: var(--success); }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        /* GRID SİSTEMİ */
+        .grid { display: grid; gap: 10px; flex: 1; overflow: hidden; }
 
-        .neon-card {
-            background: var(--card-bg); border: 2px solid #333; border-radius: 15px; height: 200px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: 0.4s; position: relative; overflow: hidden;
+        /* KARE KARTLAR */
+        .card {
+            background: var(--card); border: 1px solid #1a1a1a; border-radius: 10px;
+            padding: 10px; cursor: pointer; transition: 0.3s; text-align: center;
+            position: relative; display: flex; flex-direction: column; justify-content: center; 
+            overflow: hidden; aspect-ratio: 1 / 1; 
         }
-        .neon-card:hover { border-color: var(--neon-yellow); transform: scale(1.02); box-shadow: var(--neon-shadow); }
-        .neon-card .plaka { font-size: 5rem; font-weight: 900; color: #1a1a1a; position: absolute; bottom: -10px; right: 10px; z-index: 1; }
-        .neon-card .name { font-size: 1.8rem; font-weight: bold; z-index: 2; text-shadow: 2px 2px 5px #000; text-align: center; }
-        
-        .info-badges { position: absolute; top: 15px; left: 15px; display: flex; flex-direction: column; gap: 5px; z-index: 3; }
-        .badge-count { background: var(--neon-yellow); color: #000; padding: 3px 12px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
-        .badge-money { background: #27ae60; color: white; padding: 3px 12px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 0 10px rgba(39, 174, 96, 0.4); }
+        .card:hover { background: var(--neon); color: #000 !important; border-color: #fff; }
+        .card:hover * { color: #000 !important; }
 
-        .shop-card { background: var(--card-bg); border-radius: 15px; border: 1px solid #333; overflow: hidden; position: relative; border-bottom: 4px solid var(--neon-yellow); }
-        .shop-order { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.8); color: var(--neon-yellow); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--neon-yellow); font-weight: bold; z-index: 5; }
-        .shop-content { padding: 25px; }
-        .teberru { color: var(--neon-yellow); font-weight: bold; border: 1px solid var(--neon-yellow); padding: 5px 15px; border-radius: 20px; float: right; font-size: 1rem; }
+        .plaka-neon { position: absolute; top: 5px; right: 5px; font-size: 2.2rem; font-weight: 900; color: var(--neon); text-shadow: 0 0 10px var(--neon); z-index: 1; }
+        .main-stat { font-size: 1.2rem; color: var(--success); font-weight: 900; z-index: 2; }
+        .sub-info { font-size: 0.75rem; color: #777; font-weight: bold; z-index: 2; }
+        .title-text { font-size: 1.4rem; color: var(--neon); font-weight: 900; z-index: 2; margin-bottom: 5px; }
+
+        /* DÜKKANLAR */
+        .shop-grid { display: grid; gap: 10px; flex: 1; overflow-y: auto; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        .shop-card { background: #0a0a0a; border: 1px solid #222; border-top: 4px solid var(--neon); padding: 10px; border-radius: 10px; aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        /* PANEL */
+        .panel-trigger { position: fixed; right: 0; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: right bottom; background: var(--neon); color: #000; padding: 8px 15px; font-weight: 900; cursor: pointer; z-index: 1001; border-radius: 5px 5px 0 0; }
+        .side-panel { position: fixed; right: -320px; top: 0; width: 300px; height: 100%; background: #0a0a0a; border-left: 2px solid var(--neon); transition: 0.4s; z-index: 1000; padding: 20px; overflow-y: auto; }
+        .side-panel.open { right: 0; }
         
-        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); }
-        .modal-content { background: #1a1a1a; width: 90%; max-width: 500px; margin: 2% auto; padding: 30px; border: 2px solid var(--neon-yellow); border-radius: 20px; box-shadow: var(--neon-shadow); }
-        input, textarea { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        
+        .btn { border: 1px solid var(--neon); color: var(--neon); padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; text-transform: uppercase; text-decoration: none; text-align: center; font-size: 0.8rem; display: block; margin-top: 5px; }
+        .btn:hover { background: var(--neon); color: #000; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; background: #111; border: 1px solid #333; color: #fff; border-radius: 4px; }
         .hidden { display: none; }
-        .loader { text-align: center; padding: 50px; color: var(--neon-yellow); font-size: 1.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-nav">
-        <div id="breadcrumb" class="breadcrumb">TRAKYA BÖLGESİ TEBERRU PROGRAMI</div>
-        <button id="backBtn" class="btn hidden" onclick="goBack()">⬅ GERİ DÖN</button>
+<div id="lockScreen">
+    <div class="lock-content">
+        <h2 style="color:var(--neon)">ERİŞİM TALEBİ</h2>
+        <div id="authContent">
+            <p style="font-size: 0.8rem; color: #888;">ID: <span id="dispId" style="color:var(--neon)"></span></p>
+            <input type="text" id="reqName" placeholder="Adınız Soyadınız">
+            <button class="btn" onclick="sendAuthRequest()" style="background:var(--neon); color:#000; width:100%;">TALEBİ GÖNDER</button>
+        </div>
     </div>
-    <div id="mainGrid" class="grid"></div>
 </div>
 
-<div id="itemModal" class="modal">
-    <div class="modal-content">
-        <h3 style="color: var(--neon-yellow); margin-top:0">🔒 YENİ KAYIT YETKİLENDİRME</h3>
-        <input type="password" id="adminPass" placeholder="Yönetici Şifresi (Varsayılan: 1234)">
-        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="orderNo" placeholder="Sıra No">
-            <input type="text" id="amount" placeholder="Miktar (Sayı)">
+<div class="main-wrapper">
+    <div class="panel-trigger" onclick="togglePanel()">HIZLI KAYIT</div>
+    
+    <div class="side-panel" id="sidePanel">
+        <h3 style="color:var(--neon); margin-top:0;">YENİ KAYIT</h3>
+        <select id="f_city" onchange="updateDists()"><option>TEKİRDAĞ</option><option>EDİRNE</option><option>KIRKLARELİ</option><option>ÇANAKKALE</option></select>
+        <select id="f_dist"></select>
+        <input type="text" id="f_name" placeholder="Dükkan Adı">
+        <input type="text" id="f_owner" placeholder="Sahibi">
+        <input type="text" id="f_phone" placeholder="Telefon">
+        <input type="number" id="f_amount" placeholder="Tutar">
+        <textarea id="f_note" placeholder="Notlar..."></textarea>
+        <button class="btn" style="background:var(--success); color:#fff; border:none;" onclick="saveEntry()">KAYDET (1071)</button>
+        <button class="btn" onclick="togglePanel()">KAPAT</button>
+    </div>
+
+    <div class="content-area">
+        <div class="master-stats">
+            <h1 style="color:var(--neon); font-size:0.7rem; margin:0;">TRAKYA GENEL TOPLAM</h1>
+            <div id="totalDisplay" class="master-val">0 TL</div>
         </div>
-        <input type="text" id="name" placeholder="Dükkan Adı">
-        <input type="text" id="owner" placeholder="Dükkan Sahibi">
-        <input type="tel" id="phone" placeholder="Telefon (05xx)">
-        <input type="text" id="maps" placeholder="Maps Linki">
-        <textarea id="desc" placeholder="Açıklama..." rows="2"></textarea>
-        <button id="saveBtn" class="btn" style="width:100%; margin-top:10px" onclick="saveShop()">BULUTA KAYDET</button>
-        <button class="btn" style="width:100%; margin-top:10px; border-color:#555; color:#555" onclick="closeModal()">İPTAL</button>
+        <div id="breadcrumb" style="text-align:center; color:var(--neon); font-weight:900; margin-bottom:5px;"></div>
+        <button id="backBtn" class="btn hidden" onclick="goBack()" style="width:auto; margin-bottom:10px; align-self:center;">⬅ GERİ</button>
+        <div id="mainGrid" class="grid"></div>
     </div>
 </div>
 
 <script>
-    // --- LİNK VE ŞİFRE ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo51xVvNS5tYPeKQjEWfPqT-V_gcR6I-q3cQHoio9qXM1tfa99rk2I94rqr45p7dHx8w/exec";
-    const ADMIN_PASSWORD = "1234"; 
-    // ---------------------
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGZAKNAhKKD_Xeoev9tfnUf4ap83V0sVV9oepF3-jQN3qZa1TX18c3YhNzG0aN9a14Bw/exec";
+    
+    let deviceId = localStorage.getItem('trakya_id') || ('TRK-' + Math.random().toString(36).substr(2, 6).toUpperCase());
+    localStorage.setItem('trakya_id', deviceId);
+    document.getElementById('dispId').innerText = deviceId;
 
-    const cityData = {
-        "TEKİRDAĞ": { plaka: "59", districts: ["Süleymanpaşa", "Çorlu", "Çerkezköy", "Ergene", "Kapaklı", "Malkara", "Saray", "Hayrabolu", "Şarköy", "Muratlı", "Marmaraereğlisi"] },
-        "EDİRNE": { plaka: "22", districts: ["Merkez", "Keşan", "Uzunköprü", "İpsala", "Havsa", "Meriç", "Enez", "Süloğlu", "Lalapaşa"] },
-        "KIRKLARELİ": { plaka: "39", districts: ["Merkez", "Lüleburgaz", "Babaeski", "Vize", "Pınarhisar", "Demirköy", "Pehlivanköy", "Kofçaz"] },
-        "ÇANAKKALE": { plaka: "17", districts: ["Merkez", "Biga", "Çan", "Gelibolu", "Yenice", "Ayvacık", "Ezine", "Bayramiç", "Lapseki", "Eceabat", "Gökçeada", "Bozcaada"] }
+    const cityData = { "TEKİRDAĞ": "59", "EDİRNE": "22", "KIRKLARELİ": "39", "ÇANAKKALE": "17" };
+    const dists = {
+        "TEKİRDAĞ": ["Süleymanpaşa", "Çorlu", "Çerkezköy", "Ergene", "Kapaklı", "Malkara", "Saray", "Hayrabolu", "Şarköy", "Muratlı", "Marmaraereğlisi"],
+        "EDİRNE": ["Merkez", "Keşan", "Uzunköprü", "İpsala", "Havsa", "Meriç", "Enez", "Süloğlu", "Lalapaşa"],
+        "KIRKLARELİ": ["Merkez", "Lüleburgaz", "Babaeski", "Vize", "Pınarhisar", "Demirköy", "Pehlivanköy", "Kofçaz"],
+        "ÇANAKKALE": ["Merkez", "Biga", "Çan", "Gelibolu", "Yenice", "Ayvacık", "Ezine", "Bayramiç", "Lapseki", "Eceabat", "Gökçeada", "Bozcaada"]
     };
 
-    let db = {}; 
-    let currentCity = null, currentDist = null;
+    let fullDb = [], currentCity = null, currentDist = null;
 
-    async function fetchDB() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '<div class="loader">Veriler Alınıyor...</div>';
-        
+    async function checkAuth() {
         try {
-            // Yönlendirme (CORS) sorununu çözen kritik ayar: redirect: follow
-            const response = await fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' });
-            const rows = await response.json();
-            db = {};
-            rows.slice(1).forEach(r => {
-                const key = `${r[0]}-${r[1]}`;
-                if(!db[key]) db[key] = [];
-                db[key].push({ order:r[2], name:r[3], owner:r[4], phone:r[5], amount:r[6], desc:r[7], img:r[8], maps:r[9] });
-            });
-            render();
-        } catch (e) {
-            grid.innerHTML = '<div class="loader" style="color:red">Veri Bağlantı Hatası!<br><small>Google Scripts Dağıtımı "Herkes" olarak ayarlanmalıdır.</small></div>';
-        }
+            const res = await fetch(`${SCRIPT_URL}?deviceId=${deviceId}&t=${Date.now()}`);
+            const result = await res.json();
+            if (result.authorized) {
+                document.getElementById('lockScreen').style.display = 'none';
+                fullDb = result.data.slice(1).filter(r => r[0] && r[3]).map(r => ({
+                    city: r[0].toString().toUpperCase(), dist: r[1].toString().toUpperCase(),
+                    name: r[3], owner: r[4], phone: r[5],
+                    amount: parseInt(r[6].toString().replace(/[^0-9]/g,'')) || 0,
+                    note: r[7]||"", maps: r[9]
+                }));
+                updateMaster(); render();
+            }
+        } catch (e) { console.log("Kontrol..."); }
     }
 
-    function parseMoney(str) { return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0; }
+    async function sendAuthRequest() {
+        const name = document.getElementById('reqName').value;
+        if(!name) return alert("İsim yazın.");
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: "AUTH_REQUEST", deviceId: deviceId, name: name }) });
+        document.getElementById('authContent').innerHTML = "<p style='color:var(--success)'>Talep iletildi. Onay bekleyin...</p>";
+        setInterval(checkAuth, 5000);
+    }
 
-    function getStats(city, dist = null) {
-        let money = 0, count = 0;
-        const process = (k) => { (db[k] || []).forEach(s => { count++; money += parseMoney(s.amount); }); };
-        if(dist) process(`${city}-${dist}`);
-        else cityData[city].districts.forEach(d => process(`${city}-${d}`));
-        return { money, count };
+    async function saveEntry() {
+        if(prompt("Şifre:") !== "1071") return;
+        const data = { city: document.getElementById('f_city').value, dist: document.getElementById('f_dist').value.toUpperCase(), name: document.getElementById('f_name').value, owner: document.getElementById('f_owner').value, phone: document.getElementById('f_phone').value, amount: document.getElementById('f_amount').value, note: document.getElementById('f_note').value, type: "ENTRY" };
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+        alert("Eklendi!"); checkAuth();
     }
 
     function render() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = "";
+        const grid = document.getElementById('mainGrid'); grid.innerHTML = "";
+        
         if (!currentCity) {
             document.getElementById('backBtn').classList.add('hidden');
-            document.getElementById('breadcrumb').innerText = "TRAKYA BÖLGESİ TEBERRU PROGRAMI";
-            Object.keys(cityData).forEach(city => {
-                const s = getStats(city);
-                const card = createNeonCard(city, cityData[city].plaka, () => { currentCity = city; render(); });
-                card.style.height = "250px";
-                if(s.count > 0) card.innerHTML += `<div class="info-badges"><div class="badge-count">${s.count} ADRES</div><div class="badge-money">${s.money.toLocaleString()} TL</div></div>`;
-                grid.appendChild(card);
+            document.getElementById('breadcrumb').innerText = "İL SEÇİNİZ";
+            grid.className = "grid";
+            grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(130px, 1fr))";
+            grid.style.gridTemplateRows = "repeat(auto-fit, minmax(130px, 1fr))";
+            Object.keys(cityData).sort((a,b) => getSum(b) - getSum(a)).forEach(city => {
+                const div = document.createElement('div'); div.className = "card";
+                div.onclick = () => { currentCity = city; render(); };
+                div.innerHTML = `<div class="plaka-neon">${cityData[city]}</div>
+                    <div class="title-text">${city}</div>
+                    <div class="sub-info">${dists[city].length} İLÇE | ${fullDb.filter(i=>i.city===city).length} ADRES</div>
+                    <div class="main-stat">${getSum(city).toLocaleString()} TL</div>`;
+                grid.appendChild(div);
             });
         } else if (!currentDist) {
             document.getElementById('backBtn').classList.remove('hidden');
-            document.getElementById('breadcrumb').innerText = `📍 ${currentCity}`;
-            [...cityData[currentCity].districts].sort((a,b)=>getStats(currentCity,b).count - getStats(currentCity,a).count).forEach(dist => {
-                const s = getStats(currentCity, dist);
-                const card = createNeonCard(dist, "", () => { currentDist = dist; render(); });
-                if(s.count > 0) card.innerHTML += `<div class="info-badges"><div class="badge-count">${s.count} ADRES</div><div class="badge-money">${s.money.toLocaleString()} TL</div></div>`;
-                grid.appendChild(card);
+            document.getElementById('breadcrumb').innerText = "📍 " + currentCity;
+            
+            // SADECE İLÇELERDE 2 SATIRLI SABİT YAPI
+            grid.className = "grid";
+            grid.style.gridTemplateRows = "repeat(2, 1fr)"; 
+            grid.style.gridTemplateColumns = `repeat(auto-fit, minmax(100px, 1fr))`;
+
+            dists[currentCity].map(d => d.toUpperCase()).sort((a,b) => getSum(currentCity, b) - getSum(currentCity, a)).forEach(dist => {
+                const div = document.createElement('div'); div.className = "card";
+                div.onclick = () => { currentDist = dist; render(); };
+                div.innerHTML = `<div class="title-text" style="font-size:1rem;">${dist}</div>
+                    <div class="sub-info">${fullDb.filter(i=>i.city===currentCity && i.dist===dist).length} ADRES</div>
+                    <div class="main-stat" style="font-size:1rem;">${getSum(currentCity, dist).toLocaleString()} TL</div>`;
+                grid.appendChild(div);
             });
         } else {
-            document.getElementById('breadcrumb').innerText = `📍 ${currentCity} > ${currentDist}`;
-            const shops = (db[`${currentCity}-${currentDist}`] || []).sort((a,b)=> (parseInt(a.order)||99) - (parseInt(b.order)||99));
-            shops.forEach((shop, idx) => {
-                const div = document.createElement('div');
-                div.className = 'shop-card';
-                div.innerHTML = `
-                    <div class="shop-order">${shop.order || (idx+1)}</div>
-                    <div class="shop-content">
-                        <span class="teberru">${parseMoney(shop.amount).toLocaleString()} TL</span>
-                        <h3 style="margin:0 0 10px 0; color:var(--neon-yellow)">${shop.name}</h3>
-                        <p style="margin:5px 0"><b>Sahibi:</b> ${shop.owner}</p>
-                        <p style="margin:5px 0; color:var(--neon-yellow)"><b>📞 ${shop.phone}</b></p>
-                        <p style="font-size:0.85rem; color:#888; margin-bottom:15px; min-height:30px">${shop.desc}</p>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                            <a href="${shop.maps}" target="_blank" class="btn" style="font-size:11px; padding:10px">YOL TARİFİ</a>
-                            <a href="tel:${shop.phone}" class="btn" style="font-size:11px; background:#27ae60; color:white; border-color:#27ae60">HEMEN ARA</a>
-                        </div>
+            document.getElementById('breadcrumb').innerText = `📍 ${currentCity} / ${currentDist}`;
+            grid.className = "shop-grid";
+            grid.style.gridTemplateRows = "none";
+            grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(200px, 1fr))";
+            fullDb.filter(i => i.city === currentCity && i.dist === currentDist).sort((a,b) => b.amount - a.amount).forEach(shop => {
+                const div = document.createElement('div'); div.className = "shop-card";
+                div.innerHTML = `<div><div style="color:var(--success); float:right; font-weight:900;">${shop.amount.toLocaleString()} TL</div>
+                    <h3 style="color:var(--neon); margin:0;">${shop.name}</h3>
+                    <div style="font-size:0.75rem; color:#777; margin-top:5px;"><b>Sahibi:</b> ${shop.owner}</div>
+                    <div style="font-size:0.75rem; color:#777;"><b>Tel:</b> ${shop.phone}</div>
+                    <div style="font-size:0.7rem; color:#ccc; font-style:italic; margin-top:5px;">${shop.note}</div></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                        <a href="${shop.maps}" target="_blank" class="btn">KONUM</a>
+                        <a href="tel:${shop.phone}" class="btn" style="background:var(--success); color:#fff; border:none;">ARA</a>
                     </div>`;
                 grid.appendChild(div);
             });
-            const add = createNeonCard("YENİ KAYIT EKLE", "+", () => openModal());
-            add.style.borderStyle = "dashed"; grid.appendChild(add);
         }
     }
 
-    function createNeonCard(name, plaka, onClick) {
-        const div = document.createElement('div');
-        div.className = 'neon-card'; div.onclick = onClick;
-        div.innerHTML = `<div class="name">${name}</div>${plaka ? `<div class="plaka">${plaka}</div>` : ''}`;
-        return div;
+    function getSum(c, d = null) {
+        let f = fullDb.filter(i => i.city === c);
+        if(d) f = f.filter(i => i.dist === d);
+        return f.reduce((s, i) => s + i.amount, 0);
     }
 
-    function openModal() { document.getElementById('itemModal').style.display = 'block'; }
-    function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.querySelectorAll('input, textarea').forEach(i=>i.value=""); }
-
-    async function saveShop() {
-        if(document.getElementById('adminPass').value !== ADMIN_PASSWORD) { alert("Yetkisiz Giriş! Şifre yanlış."); return; }
-        
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = "YAZILIYOR...";
-        saveBtn.disabled = true;
-
-        const shopObj = {
-            city: currentCity, dist: currentDist,
-            order: document.getElementById('orderNo').value,
-            name: document.getElementById('name').value,
-            owner: document.getElementById('owner').value,
-            phone: document.getElementById('phone').value,
-            amount: document.getElementById('amount').value,
-            desc: document.getElementById('desc').value,
-            img: "", maps: document.getElementById('maps').value
-        };
-
-        try {
-            // POST isteği için redirect: follow önemlidir
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(shopObj), redirect: 'follow' });
-            closeModal();
-            fetchDB();
-        } catch (e) {
-            alert("Hata: Google Tabloya ulaşılamadı.");
-        } finally {
-            saveBtn.innerText = "BULUTA KAYDET";
-            saveBtn.disabled = false;
-        }
-    }
-
-    function goBack() { if(currentDist) currentDist = null; else if(currentCity) currentCity = null; render(); }
+    function updateMaster() { document.getElementById('totalDisplay').innerText = fullDb.reduce((s, i) => s + i.amount, 0).toLocaleString() + " TL"; }
+    function togglePanel() { document.getElementById('sidePanel').classList.toggle('open'); }
+    function updateDists() { const c = document.getElementById('f_city').value; document.getElementById('f_dist').innerHTML = dists[c].map(d => `<option>${d.toUpperCase()}</option>`).join(""); }
+    function goBack() { if(currentDist) { currentDist = null; } else { currentCity = null; } render(); }
     
-    // Uygulama Başlatma
-    fetchDB();
+    updateDists(); checkAuth();
 </script>
 </body>
 </html>
